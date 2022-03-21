@@ -1,0 +1,66 @@
+#include "displaySerialBuffer.hpp"
+#include "serialPacketBaseTypes.hpp"
+
+#include <stdlib.h>
+#include <assert.h>
+#include <cstring>
+
+displaySerialBuffer::displaySerialBuffer()
+{
+	m_buffer.empty();
+	m_dataIndex = 0;
+}
+
+std::vector<uint8_t>& displaySerialBuffer::getBuffer()
+{
+	return m_buffer;
+}
+
+void displaySerialBuffer::setPacketIndex(uint8_t newIndex)
+{
+	m_dataIndex = newIndex;
+}
+
+uint8_t displaySerialBuffer::getPacketLength() const
+{
+	if(m_buffer.empty())
+	{
+		return 0;
+	}
+	
+	return *m_buffer.cbegin();
+}
+
+uint8_t displaySerialBuffer::getBufferSize() const
+{
+	return m_buffer.size();
+}
+
+bool displaySerialBuffer::fullPacketRecieved() const
+{
+	return getPacketLength() == m_buffer.size();
+}
+
+uint8_t displaySerialBuffer::calcCRCbyte()
+{
+	uint8_t crcByte = 0;
+	for(auto byte = m_buffer.begin(); byte != (m_buffer.end()-1); byte++)
+	{
+		crcByte ^= *byte;
+	}
+	return crcByte;
+}
+
+bool displaySerialBuffer::validatePacket()
+{
+	if(m_buffer.empty())
+	{
+		return false;
+	}
+
+	bool ret = true;
+	ret &= fullPacketRecieved();
+	ret &= calcCRCbyte() == *m_buffer.end();
+
+	return ret;
+}
