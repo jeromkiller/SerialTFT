@@ -47,6 +47,20 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 			{
 				//TODO
 			}
+			if(controlPacket.getScreenOrientationFlag())
+			{
+				const uint8_t orientation = controlPacket.getScreenOrient();
+				for(uint8_t d = 0; d < m_numDisplays; d++)
+				{
+					//check if the screen is active
+					if(!((1 << d) & m_activeScreens))
+					{
+						continue;
+					}
+					Adafruit_GFX* current_disp = *(m_displays + d);
+					current_disp->setRotation(orientation);
+				}
+			}
 
 			break;
 		}

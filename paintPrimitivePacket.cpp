@@ -16,6 +16,7 @@ bool paintPrimitivePacket::serialize(displaySerialBuffer& buffer)
 	}
 
 	buffer.add(m_primitive);
+	buffer.add(m_parameters);
 	return true;
 }
 
@@ -30,6 +31,7 @@ bool paintPrimitivePacket::deserialize(displaySerialBuffer& buffer)
 
 	//read the data from where paint packet base left off
 	buffer.get(&m_primitive);
+	buffer.get(&m_parameters);
 	return true;
 }
 

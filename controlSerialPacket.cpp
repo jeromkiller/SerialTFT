@@ -5,10 +5,10 @@
 controlSerialPacket::controlSerialPacket() :
 	serialPacketBase(serialPacketBaseTypes::packetType::CONTROL_PACKET)
 {
-	m_flags.rawByte = 0;
 	m_screenSelect = 0;
 	m_screenBrightness = 0;
 	m_keyBrightness = 0;
+	m_screenOrient = 0;
 }
 
 bool controlSerialPacket::serialize(displaySerialBuffer& buffer)
@@ -29,6 +29,10 @@ bool controlSerialPacket::serialize(displaySerialBuffer& buffer)
 	if(getKeyBrightnessFlag())
 	{
 		buffer.add(m_keyBrightness);
+	}
+	if(getScreenOrientationFlag())
+	{
+		buffer.add(m_screenOrient);
 	}
 
 	return finalizePacket(buffer);
@@ -60,6 +64,10 @@ bool controlSerialPacket::deserialize(displaySerialBuffer& buffer)
 	{
 		buffer.get(&m_keyBrightness);
 	}
+	if(getScreenBrightnessFlag())
+	{
+		buffer.get(&m_screenOrient);
+	}
 
 	return true;
 }
@@ -76,6 +84,10 @@ bool controlSerialPacket::getKeyBrightnessFlag() const
 {
 	return m_flags.flag2;
 }
+bool controlSerialPacket::getScreenOrientationFlag() const
+{
+	return m_flags.flag3;
+}
 void controlSerialPacket::setScreenSelectFlag(bool flag)
 {
 	m_flags.flag0 = flag;
@@ -88,7 +100,10 @@ void controlSerialPacket::setKeyBrightnessFlag(bool flag)
 {
 	m_flags.flag2 = flag;
 }
-
+void controlSerialPacket::setScreenOrientationFlag(bool flag)
+{
+	m_flags.flag3 = flag;
+}
 uint8_t controlSerialPacket::getScreenSelect()const
 {
 	return m_screenSelect;
@@ -103,7 +118,10 @@ uint8_t controlSerialPacket::getKeyBrightness()const
 {
 	return m_keyBrightness;
 }
-
+uint8_t controlSerialPacket::getScreenOrient()const
+{
+	return m_screenOrient;
+}
 void controlSerialPacket::setScreenSelect(uint8_t newVal)
 {
 	m_screenSelect = newVal;
@@ -120,4 +138,9 @@ void controlSerialPacket::setKeyBrightness(uint8_t newVal)
 {
 	m_keyBrightness = newVal;
 	setKeyBrightnessFlag(true);
+}
+void controlSerialPacket::setScreenOrient(uint8_t newVal)
+{
+	m_screenOrient = newVal;
+	setScreenOrientationFlag(true);
 }
