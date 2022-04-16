@@ -1,36 +1,27 @@
 #include "paintPacketBase.hpp"
 #include "displaySerialBuffer.hpp"
 
-paintPacketBase::paintPacketBase(serialPacketBaseTypes::packetType pType) :
-	serialPacketBase(pType)
+paintPacketBase::paintPacketBase(serialPacketBaseTypes::packetType pType) 
+	: serialPacketBase(pType)
+	, cursorX(packProperty<uint16_t>(m_flags, 4))
+	, cursorY(packProperty<uint16_t>(m_flags, 5))
+	, penColor(packProperty<packedColor>(m_flags, 6))
+	, bgColor(packProperty<packedColor>(m_flags, 7))
 {
-	m_cursorX = 0;
-	m_cursorY = 0;
 }
 
 bool paintPacketBase::serialize(displaySerialBuffer& buffer)
 {
-	if(!serialPacketBase::serialize(buffer))
+	bool ret = serialPacketBase::serialize(buffer);
+	if(!ret)
 	{
 		return false;
 	}
 
-	if(getCursorXFlag())
-	{
-		buffer.add(m_cursorX);
-	}
-	if(getCursorYFlag())
-	{
-		buffer.add(m_cursorY);
-	}
-	if(getPenColorFlag())
-	{
-		buffer.add(m_penColor);
-	}
-	if(getBgColorFlag())
-	{
-		buffer.add(m_bgColor);
-	}
+	cursorX.serialize(buffer);
+	cursorY.serialize(buffer);
+	penColor.serialize(buffer);
+	bgColor.serialize(buffer);
 
 	return true;
 }
@@ -49,108 +40,10 @@ bool paintPacketBase::deserialize(displaySerialBuffer& buffer)
 	//start reading the data
 	buffer.setPacketIndex(packetIndex::PACKET_DATA);
 
-	if(getCursorXFlag())
-	{
-		buffer.get(&m_cursorX);
-	}
-	if(getCursorYFlag())
-	{
-		buffer.get(&m_cursorY);
-	}
-	if(getPenColorFlag())
-	{
-		buffer.get(&m_penColor);
-	}
-	if(getBgColorFlag())
-	{
-		buffer.get(&m_bgColor);
-	}
+	ret &= cursorX.deserialize(buffer);
+	ret &= cursorY.deserialize(buffer);
+	ret &= penColor.deserialize(buffer);
+	ret &= bgColor.deserialize(buffer);
 
 	return ret;
-}
-
-//high nibble flag control
-bool paintPacketBase::getCursorXFlag() const
-{
-	return m_flags.flag4;
-}
-
-bool paintPacketBase::getCursorYFlag() const
-{
-	return m_flags.flag5;
-}
-
-bool paintPacketBase::getPenColorFlag() const
-{
-	return m_flags.flag6;
-}
-
-bool paintPacketBase::getBgColorFlag() const
-{
-	return m_flags.flag7;
-}
-
-void paintPacketBase::setCursorXFlag(const bool flag)
-{
-	m_flags.flag4 = flag;
-}
-
-void paintPacketBase::setCursorYFlag(const bool flag)
-{
-	m_flags.flag5 = flag;
-}
-
-void paintPacketBase::setPenColorFlag(const bool flag)
-{
-	m_flags.flag6 = flag;
-}
-
-void paintPacketBase::setBgColorFlag(const bool flag)
-{
-	m_flags.flag7 = flag;
-}
-
-//data getters and setters
-uint16_t paintPacketBase::getCursorX() const
-{
-	return m_cursorX;
-}
-
-uint16_t paintPacketBase::getCursorY() const
-{
-	return m_cursorY;
-}
-
-packedColor paintPacketBase::getPenColor() const
-{
-	return m_penColor;
-}
-
-packedColor paintPacketBase::getBgColor() const
-{
-	return m_bgColor;
-}
-
-void paintPacketBase::setCursorX(const uint16_t newCursorX)
-{
-	m_cursorX = newCursorX;
-	setCursorXFlag(true);
-}
-
-void paintPacketBase::setCursorY(const uint16_t newCursorY)
-{
-	m_cursorY = newCursorY;
-	setCursorYFlag(true);
-}
-
-void paintPacketBase::setPenColor(const packedColor newColor)
-{
-	m_penColor = newColor;
-	setPenColorFlag(true);
-}
-
-void paintPacketBase::setBgColor(const packedColor newColor)
-{
-	m_bgColor = newColor;
-	setBgColorFlag(true);
 }

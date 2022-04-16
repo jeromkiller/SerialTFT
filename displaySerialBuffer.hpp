@@ -19,7 +19,7 @@ public:
 	//add a byte to the packet
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	add(const T& data)
+	add(const T& value)
 	{
 		//static_assert(T::type != void);
 		const size_t oldSize = m_buffer.size();
@@ -28,7 +28,7 @@ public:
 		//i'd have preffered to perform the 'is_trivially_copyable'
 		//check with an constexpr if, but those aren't available on arduino
 		m_buffer.resize(newSize);
-		memcpy(m_buffer.data() + oldSize, &data, sizeof(T));
+		memcpy(m_buffer.data() + oldSize, &value, sizeof(T));
 
 		return true;
 	}
@@ -36,7 +36,7 @@ public:
 	//add a buffer to the packet
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	add_buffer(const T* buff_ptr, int8_t numItems)
+	add_buffer(const T* buff_ptr, const int8_t numItems)
 	{
 		if(buff_ptr == nullptr)
 		{
@@ -60,9 +60,10 @@ public:
 	//get the next value from the packet
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	get(T* data)
+	get(T& value)
 	{
-		memcpy(data, m_buffer.data() + m_dataIndex, sizeof(T));
+		const void* p = m_buffer.data() + m_dataIndex;
+		value = *reinterpret_cast<const T*>(p);
 		m_dataIndex += sizeof(T);
 		return true;
 	}
@@ -70,7 +71,7 @@ public:
 	//get a value from the packet
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	get(T* data, uint8_t index)
+	get(T& data, const uint8_t index)
 	{
 		m_dataIndex = index;
 		return get(data);
@@ -79,20 +80,20 @@ public:
 	//get a pointer to a sepperate buffer from the buffer
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	get_buffer_ptr(T** placepointer, uint8_t* num_elements)
+	get_buffer_ptr(T** placepointer, uint8_t& num_elements)
 	{
 		//first get the number of items in the buffer
 		get(num_elements);
 
 		//then get the pointer to the buffer
 		*placepointer = reinterpret_cast<T*>(m_buffer.data() + m_dataIndex);
-		m_dataIndex += (*num_elements * sizeof(T));
+		m_dataIndex += (num_elements * sizeof(T));
 		return true;
 	}
 
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	get_buffer_ptr(T** placePointer, uint8_t* num_elements, uint8_t index)
+	get_buffer_ptr(T** placePointer, uint8_t& num_elements, uint8_t index)
 	{
 		//set the index and then just call the regular getbuffer function
 		m_dataIndex = index;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "paintPacketBase.hpp"
+#include "packetProperty.hpp"
 #include "colors.hpp"
 #include <stdint.h>
 
@@ -13,7 +14,8 @@ public:
 	//4 bits max, so max 16 options
 	enum class primitives : uint8_t
 	{
-		point = 0,
+		none = 0,
+		point,
 		line,
 		circle,
 		filledCircle,

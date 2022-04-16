@@ -9,6 +9,7 @@
 class Adafruit_GFX;
 class serialPacketBase;
 class paintPacketBase;
+class paintTextPacket;
 
 //this class is responsible for drawing the graphics to the tft displays
 class serialPainter
@@ -19,10 +20,13 @@ public:
 	serialPainter(Adafruit_GFX** displays, const uint8_t num_displays);
 	~serialPainter();
 
+	Adafruit_GFX& getDisplay(const uint8_t id);
+
 	bool performCommand(const serialPacketBase& packet);
 
 private:
 	bool setPaintBaseParameters(const paintPacketBase& packet);
+	bool setTextBaseParameters(const paintTextPacket& packet);
 
 	Adafruit_GFX** m_displays;
 

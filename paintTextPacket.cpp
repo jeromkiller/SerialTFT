@@ -1,26 +1,29 @@
 #include "paintTextPacket.hpp"
 #include "displaySerialBuffer.hpp"
 
-paintTextPacket::paintTextPacket() :
-	paintPacketBase(serialPacketBaseTypes::packetType::TEXT_PACKET)
+paintTextPacket::paintTextPacket()
+	: paintPacketBase(serialPacketBaseTypes::packetType::TEXT_PACKET)
+	, textSize(packProperty<uint8_t>(m_flags, 0))
+	, useWrapping(packProperty<bool>(m_flags, 1))
+	, textPtr(packProperty<char*>(m_flags, 2))
 {
-	m_textPtr = nullptr;
 };
 
 bool paintTextPacket::serialize(displaySerialBuffer& buffer)
 {
-	if(!paintPacketBase::serialize(buffer))
+	bool ret = paintPacketBase::serialize(buffer);
+	if(!ret)
 	{
 		return false;
 	}
 
-	if(getWriteTextFlag())
-	{
-		//when serializing, copy the string to the send buffer
-		buffer.add_buffer(m_textPtr, strlen(m_textPtr) + 1);	//+1 to keep the null byte too
-	}
+	ret &= textSize.serialize(buffer);
+	ret &= useWrapping.serialize(buffer);
+	ret &= textPtr.serialize(buffer, strlen(textPtr.value()) + 1);	//+1 to include the null character signifying 
 
-	return true;
+	ret &= finalizePacket(buffer);
+
+	return ret;
 }
 
 bool paintTextPacket::deserialize(displaySerialBuffer& buffer)
@@ -32,33 +35,9 @@ bool paintTextPacket::deserialize(displaySerialBuffer& buffer)
 		return false;
 	}
 
-	if(getWriteTextFlag())
-	{
-		uint8_t dummy;
-		buffer.get_buffer_ptr(&m_textPtr, &dummy);
-	}
+	ret &= textSize.deserialize(buffer);
+	ret &= useWrapping.deserialize(buffer);
+	ret &= textPtr.deserialize(buffer);
 
-	return true;
-}
-
-//high nibble flag control
-bool paintTextPacket::getWriteTextFlag() const
-{
-	return m_flags.flag0;
-}
-
-void paintTextPacket::setWriteTextFlag(const bool flag)
-{
-	m_flags.flag0 = flag;
-}
-
-char* paintTextPacket::getTextPtr() const
-{
-	return m_textPtr;
-}
-
-void paintTextPacket::setTextPtr(char* textPtr)
-{
-	setWriteTextFlag(true);
-	m_textPtr = textPtr;
+	return ret;
 }

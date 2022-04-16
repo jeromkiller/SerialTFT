@@ -10,14 +10,18 @@ paintPrimitivePacket::paintPrimitivePacket() :
 
 bool paintPrimitivePacket::serialize(displaySerialBuffer& buffer)
 {
-	if(!paintPacketBase::serialize(buffer))
+	bool ret = paintPacketBase::serialize(buffer);
+	if(!ret)
 	{
 		return false;
 	}
 
-	buffer.add(m_primitive);
-	buffer.add(m_parameters);
-	return true;
+	ret &= buffer.add(m_primitive);
+	ret &= buffer.add(m_parameters);
+
+	ret &= finalizePacket(buffer);
+
+	return ret;
 }
 
 bool paintPrimitivePacket::deserialize(displaySerialBuffer& buffer)
@@ -30,19 +34,21 @@ bool paintPrimitivePacket::deserialize(displaySerialBuffer& buffer)
 	}
 
 	//read the data from where paint packet base left off
-	buffer.get(&m_primitive);
-	buffer.get(&m_parameters);
-	return true;
+	ret &= buffer.get(m_primitive);
+	ret &= buffer.get(m_parameters);
+	return ret;
 }
 
 //primitive is stored in the low nibble of the flags
 paintPrimitivePacket::primitives paintPrimitivePacket::getPrimitiveFlag() const
 {
-	return static_cast<primitives>(m_flags.LowNibble);
+	//get the primitive by hand
+	return static_cast<primitives>(m_flags.m_flagByte & 0x0F);
 }
 void paintPrimitivePacket::setPrimitiveFlag(primitives primitive)
 {
-	m_flags.LowNibble = static_cast<uint8_t>(primitive);
+	//set the primitive by hand
+	m_flags.m_flagByte &= (static_cast<uint8_t>(primitive) | 0xF0);
 }
 //data getters and setter
 

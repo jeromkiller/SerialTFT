@@ -11,27 +11,6 @@ serialPacketBaseTypes::packetType serialPacketBase::getPacketType() const
 
 serialPacketBase::serialPacketBase(const packetType pType) : m_pType(pType)
 {
-	m_flags.rawByte = 0;
-}
-
-void serialPacketBase::setRawFlags(const dataFlags newFlags)
-{
-	m_flags = newFlags;
-}
-
-void serialPacketBase::setRawFlags(const uint8_t newFlags)
-{
-	m_flags.rawByte = newFlags;
-}
-
-serialPacketBase::dataFlags serialPacketBase::getFlags() const
-{
-	return m_flags;
-}
-
-uint8_t serialPacketBase::getRawFlags() const
-{
-	return m_flags.rawByte;
 }
 
 bool serialPacketBase::serialize(displaySerialBuffer& buffer)
@@ -72,8 +51,10 @@ bool serialPacketBase::deserialize(displaySerialBuffer& buffer)
 		return false;
 	}
 
-	buffer.get(&m_pType, packetIndex::PACKET_TYPE);
-	buffer.get(&m_flags, packetIndex::PACKET_FLAGS);
+	//you can't get write to a const refference dummy, 
+	//also the type is already set when constructing the paket
+//	buffer.get(m_pType, packetIndex::PACKET_TYPE); 
+	buffer.get(m_flags, packetIndex::PACKET_FLAGS);
 
 	return true;
 }
