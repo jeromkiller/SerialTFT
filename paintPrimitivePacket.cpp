@@ -48,7 +48,7 @@ paintPrimitivePacket::primitives paintPrimitivePacket::getPrimitiveFlag() const
 void paintPrimitivePacket::setPrimitiveFlag(primitives primitive)
 {
 	//set the primitive by hand
-	m_flags.m_flagByte &= (static_cast<uint8_t>(primitive) | 0xF0);
+	m_flags.m_flagByte |= (static_cast<uint8_t>(primitive) & 0x0F);
 }
 //data getters and setter
 

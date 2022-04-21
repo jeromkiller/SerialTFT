@@ -37,8 +37,8 @@ bool serialPacketBase::finalizePacket(displaySerialBuffer& buffer)
 
 	//calculate and add the crc byte
 	//add an empty byte to finalize the packet and to calculate the crc
-	rawBuffer.push_back(0);
-	*rawBuffer.end() = buffer.calcCRCbyte();
+	rawBuffer.push_back((uint8_t)0);
+	*(rawBuffer.end()-1) = buffer.calcCRCbyte();
 
 	return true;
 }

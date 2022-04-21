@@ -4,10 +4,7 @@
 #include <vector>
 #include <cstring>
 
-namespace serialPacketBaseTypes
-{
-	enum class packetType : uint8_t;
-};
+#include "serialPacketBaseTypes.hpp"
 
 class displaySerialBuffer
 {
@@ -107,6 +104,8 @@ public:
 	uint8_t getPacketLength() const;
 	//how many bytes are in the buffer
 	uint8_t getBufferSize() const;
+	//get the packetType
+	serialPacketBaseTypes::packetType getPacketType() const;
 	//have we recieved the full package
 	bool fullPacketRecieved() const;
 	//calculate the crc byte for the packet

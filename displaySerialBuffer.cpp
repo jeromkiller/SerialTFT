@@ -1,5 +1,4 @@
 #include "displaySerialBuffer.hpp"
-#include "serialPacketBaseTypes.hpp"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -36,6 +35,18 @@ uint8_t displaySerialBuffer::getBufferSize() const
 	return m_buffer.size();
 }
 
+serialPacketBaseTypes::packetType displaySerialBuffer::getPacketType() const
+{
+	using pt = serialPacketBaseTypes::packetType;
+	using pi = serialPacketBaseTypes::packetIndex;
+	if(m_buffer.size() < 2)
+	{
+		return pt::UNKNOWN_PACKET;
+	}
+
+	return static_cast<pt>(m_buffer[pi::PACKET_TYPE]);
+}
+
 bool displaySerialBuffer::fullPacketRecieved() const
 {
 	return getPacketLength() == m_buffer.size();
@@ -60,7 +71,7 @@ bool displaySerialBuffer::validatePacket()
 
 	bool ret = true;
 	ret &= fullPacketRecieved();
-	ret &= calcCRCbyte() == *m_buffer.end();
+	ret &= calcCRCbyte() == *(m_buffer.end()-1);
 
 	return ret;
 }
