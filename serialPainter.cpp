@@ -3,17 +3,23 @@
 #include "controlSerialPacket.hpp"
 #include "paintPrimitivePacket.hpp"
 #include "paintTextPacket.hpp"
+#include "controlSerialPacket.hpp"
+#include "paintSavedBMPPacket.hpp"
 
-#include "Adafruit_GFX.h"
+#include "Adafruit_SPITFT.h"
+#include <SdFat.h>
 
-serialPainter::serialPainter(Adafruit_GFX** displays, const uint8_t num_displays)
+serialPainter::serialPainter(Adafruit_SPITFT** displays, const uint8_t num_displays, SdFat* sd)
 	: m_displays(displays)
+	, m_sd(sd)
+	, m_reader(Adafruit_ImageReader(*sd))
 {
 	m_numDisplays = num_displays;
 	m_penColor = 0;
-	m_bgColor = 0;
+	m_textBgColor = 0;
 	m_penX = 0;
 	m_penY = 0;
+	m_screenStyle = paintingTypes::MultiscreenStyles::STATIC;
 }
 
 serialPainter::~serialPainter()
@@ -26,7 +32,7 @@ serialPainter::~serialPainter()
 	//m_displays = nullptr;
 }
 
-Adafruit_GFX& serialPainter::getDisplay(uint8_t id)
+Adafruit_SPITFT& serialPainter::getDisplay(uint8_t id)
 {
 	return **(m_displays + id);
 }
@@ -63,9 +69,13 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 					{
 						continue;
 					}
-					Adafruit_GFX& current_disp = getDisplay(d);
+					Adafruit_SPITFT& current_disp = getDisplay(d);
 					current_disp.setRotation(orientation);
 				}
+			}
+			if(controlPacket.m_multiStyle.isSet())
+			{
+				m_screenStyle = controlPacket.m_multiStyle.value();
 			}
 
 			break;
@@ -76,10 +86,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 			uint16_t future_penX = 0;
 			uint16_t future_penY = 0;
 
-			if(!setPaintBaseParameters(paintPacket))
-			{
-				return false;
-			}
+			setPaintPrimitiveParameters(paintPacket);
 
 			//perform the draw command for every active display
 			for(uint8_t d = 0; d < m_numDisplays; d++)
@@ -90,7 +97,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 					continue;
 				}
 
-				Adafruit_GFX& current_disp = getDisplay(d);
+				Adafruit_SPITFT& current_disp = getDisplay(d);
 
 				switch(paintPacket.getPrimitiveFlag())
 				{
@@ -117,8 +124,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 					case paintPrimitivePacket::primitives::filledCircle :
 					{
 						const uint16_t rad = paintPacket.getRadius();
-						current_disp.fillCircle(m_penX, m_penY, rad, m_bgColor.getColors());
-						current_disp.drawCircle(m_penX, m_penY, rad, m_penColor.getColors());
+						current_disp.fillCircle(m_penX, m_penY, rad, m_penColor.getColors());
 						break;
 					}
 					case paintPrimitivePacket::primitives::rectangle :
@@ -134,8 +140,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 					{
 						const uint16_t width = paintPacket.getWidth();
 						const uint16_t height = paintPacket.getHeight();
-						current_disp.fillRect(m_penX, m_penY, width, height, m_bgColor.getColors());
-						current_disp.drawRect(m_penX, m_penY, width, height, m_penColor.getColors());
+						current_disp.fillRect(m_penX, m_penY, width, height, m_penColor.getColors());
 						future_penX = m_penX + width;
 						future_penY = m_penY + height;
 						break;
@@ -155,8 +160,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 						const uint16_t width = paintPacket.getWidth();
 						const uint16_t height = paintPacket.getHeight();
 						const uint16_t radius = paintPacket.getRadius();
-						current_disp.fillRoundRect(m_penX, m_penY, width, height, radius, m_bgColor.getColors());
-						current_disp.drawRoundRect(m_penX, m_penY, width, height, radius, m_penColor.getColors());
+						current_disp.fillRoundRect(m_penX, m_penY, width, height, radius, m_penColor.getColors());
 						future_penX = m_penX + width;
 						future_penY = m_penY + height;
 						break;
@@ -178,8 +182,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 						const uint16_t ptY1 = paintPacket.getPointY1();
 						const uint16_t ptX2 = paintPacket.getPointX2();
 						const uint16_t ptY2 = paintPacket.getPointY2();
-						current_disp.fillTriangle(m_penX, m_penY, ptX1, ptY1, ptX2, ptY2, m_bgColor.getColors());
-						current_disp.drawTriangle(m_penX, m_penY, ptX1, ptY1, ptX2, ptY2, m_penColor.getColors());
+						current_disp.fillTriangle(m_penX, m_penY, ptX1, ptY1, ptX2, ptY2, m_penColor.getColors());
 						future_penX = m_penX + ptX2;
 						future_penY = m_penY + ptY2;
 						break;
@@ -193,22 +196,15 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 			}
 			m_penX = future_penX;
 			m_penY = future_penY;
+			postDrawCommand();
 			break;
 		}
 		case packetType::TEXT_PACKET:
 		{
 			const paintTextPacket& textPacket = static_cast<const paintTextPacket&>(packet);
-			uint16_t future_penX = 0;
-			uint16_t future_penY = 0;
-
-			//firstly set any of the base parameters
-			if(!setPaintBaseParameters(textPacket))
-			{
-				return false;
-			}
 
 			//apply the base paremeters if they're set
-			setTextBaseParameters(textPacket);
+			setTextParameters(textPacket);
 
 			//if we have to write text
 			if(textPacket.textPtr.isSet())
@@ -222,11 +218,64 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 						continue;
 					}
 
-					Adafruit_GFX& current_disp = getDisplay(d);
+					Adafruit_SPITFT& current_disp = getDisplay(d);
 					current_disp.print(textPacket.textPtr.value());
 				}
 			}
+			postDrawCommand();
+			break;
+		}
+		case packetType::BITMAP_PACKET:
+		{
+			const paintSavedBMPPacket& bmpPacket = static_cast<const paintSavedBMPPacket&>(packet);
 
+			setBMPParameters(bmpPacket);
+
+			if(bmpPacket.BMPPath.isSet())
+			{
+				const char* bmpPath = bmpPacket.BMPPath.value();
+				//cache the bitmap,
+				ImageReturnCode stat;
+				Adafruit_Image sprite; 
+				stat = m_reader.loadBMP(bmpPath, sprite);		
+	
+				if(stat != IMAGE_SUCCESS)
+				{
+					return false;
+				}
+
+				//set the transparant color to the bg color
+				GFXcanvas16* sprite_canvas = static_cast<GFXcanvas16*>(sprite.getCanvas());
+				uint16_t* sprite_buff = sprite_canvas->getBuffer();
+				const uint16_t s_height = sprite_canvas->height();
+				const uint16_t s_width = sprite_canvas->width();
+				for(uint16_t i = 0; i < s_height * s_width; i++)
+				{
+					if(sprite_buff[i] == m_bmpTransColor.getColors())
+					{
+						sprite_buff[i] = m_bmpBgColor.getColors();
+					}
+				}
+
+				//then draw the bitmap
+				for(uint8_t d = 0; d < m_numDisplays; d++)
+				{
+					//check if the screen is active
+					if(!((1 << d) & m_activeScreens))
+					{
+						continue;
+					}
+
+					Adafruit_SPITFT& current_disp = getDisplay(d);
+					sprite.draw(current_disp, m_penX, m_penY);
+				}
+
+				//save where the cursor is going to end up at
+				m_penX += s_width;
+				m_penY += s_height;
+			}
+
+			postDrawCommand();
 			break;
 		}
 		default:
@@ -237,7 +286,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 	return true;
 }
 
-bool serialPainter::setPaintBaseParameters(const paintPacketBase& packet)
+void serialPainter::setPaintBaseParameters(const paintPacketBase& packet)
 {
 	if(packet.cursorX.isSet())
 	{
@@ -247,21 +296,24 @@ bool serialPainter::setPaintBaseParameters(const paintPacketBase& packet)
 	{
 		m_penY = packet.cursorY.value();
 	}
+
+}
+
+void serialPainter::setPaintPrimitiveParameters(const paintPrimitivePacket& packet)
+{
+	setPaintBaseParameters(packet);
+
 	if(packet.penColor.isSet())
 	{
 		m_penColor = packet.penColor.value();
 	}
-	if(packet.bgColor.isSet())
-	{
-		m_bgColor = packet.bgColor.value();
-	}
-
-	return true;
 }
 
 //this sets the base parameters for writing text
-bool serialPainter::setTextBaseParameters(const paintTextPacket& packet)
+void serialPainter::setTextParameters(const paintTextPacket& packet)
 {
+	setPaintBaseParameters(packet);
+
 	for(uint8_t d = 0; d < m_numDisplays; d++)
 	{
 		//check if the screen is active
@@ -272,7 +324,20 @@ bool serialPainter::setTextBaseParameters(const paintTextPacket& packet)
 
 		Adafruit_GFX& display = getDisplay(d);
 		display.setCursor(m_penX, m_penY);
-		display.setTextColor(m_penColor.getColors(), m_bgColor.getColors());
+
+		if(packet.penColor.isSet())
+		{
+			const packedColor tColor = packet.penColor.value();
+			m_textColor = tColor;
+		}
+
+		if(packet.bgColor.isSet())
+		{
+			const packedColor bgColor = packet.bgColor.value();
+			m_textBgColor = bgColor;
+		}
+
+		display.setTextColor(m_penColor.getColors(), m_textBgColor.getColors());
 
 		if(packet.textSize.isSet())
 		{
@@ -286,6 +351,36 @@ bool serialPainter::setTextBaseParameters(const paintTextPacket& packet)
 			display.setTextWrap(useTextWrap);
 		}
 	}
+}
 
-	return true;
+void serialPainter::setBMPParameters(const paintSavedBMPPacket& packet)
+{
+	setPaintBaseParameters(packet);
+
+	if(packet.bgColor.isSet())
+	{
+		const packedColor color = packet.bgColor.value();
+		m_bmpBgColor = color;
+	}
+
+	if(packet.transColor.isSet())
+	{
+		const packedColor color = packet.transColor.value();
+		m_bmpTransColor = color;
+	}
+}
+
+//TODO: testme
+void serialPainter::postDrawCommand()
+{
+	if(m_screenStyle == paintingTypes::MultiscreenStyles::SHIFTING)
+	{
+		//shift the display numbers around
+		bool outbit = m_activeScreens & (1 << (m_numDisplays -1));
+		m_activeScreens <<= 1;
+		if(outbit)
+		{
+			outbit |= 1;
+		}
+	}
 }

@@ -34,6 +34,9 @@ public:
 	primitives getPrimitiveFlag() const;
 	void setPrimitiveFlag(primitives primitive);
 
+	//simple packet data
+	packProperty<packedColor> penColor;
+
 	//data getters and setters
 	uint16_t getWidth() const;
 	uint16_t getHeight() const;

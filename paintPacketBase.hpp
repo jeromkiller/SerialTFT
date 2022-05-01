@@ -1,7 +1,6 @@
 #pragma once
 
 #include "serialPacketBase.hpp"
-#include "colors.hpp"
 #include "packetProperty.hpp"
 #include <stdint.h>
 
@@ -17,8 +16,6 @@ public:
 	//data
 	packProperty<uint16_t> cursorX;
 	packProperty<uint16_t> cursorY;
-	packProperty<packedColor> penColor;
-	packProperty<packedColor> bgColor;
 
 protected:
 	//this class cannot be created by the user

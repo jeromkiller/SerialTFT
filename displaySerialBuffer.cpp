@@ -6,7 +6,7 @@
 
 displaySerialBuffer::displaySerialBuffer()
 {
-	m_buffer.empty();
+	m_buffer.clear();
 	m_dataIndex = 0;
 }
 

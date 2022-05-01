@@ -1,6 +1,7 @@
 #pragma once
 #include "serialPacketBase.hpp"
 #include "packetProperty.hpp"
+#include "serialPainterTypes.hpp"
 #include <vector>
 #include <stdint.h>
 
@@ -8,6 +9,7 @@ class controlSerialPacket :
 	public serialPacketBase
 {
 public:
+
 	controlSerialPacket();
 
 	virtual bool serialize(displaySerialBuffer& buffer) final;
@@ -18,4 +20,5 @@ public:
 	packProperty<uint8_t> screenBrightness;
 	packProperty<uint8_t> keyBrightness;
 	packProperty<uint8_t> m_screenOrient;
+	packProperty<paintingTypes::MultiscreenStyles> m_multiStyle;
 };

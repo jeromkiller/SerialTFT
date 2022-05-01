@@ -3,21 +3,20 @@
 #include "paintPacketBase.hpp"
 #include "packetProperty.hpp"
 #include "colors.hpp"
+
 #include <stdint.h>
 
-class paintTextPacket :
+class paintSavedBMPPacket :
 	public paintPacketBase
 {
 public:
-	paintTextPacket();
+	paintSavedBMPPacket();
 
 	virtual bool serialize(displaySerialBuffer& buffer) final;
 	virtual bool deserialize(displaySerialBuffer& buffer) final;
 
 	//data
-	packProperty<packedColor> penColor;
+	packProperty<char*> BMPPath;
 	packProperty<packedColor> bgColor;
-	packProperty<uint8_t> textSize;
-	packProperty<bool> useWrapping;
-	packProperty<char*> textPtr;
+	packProperty<packedColor> transColor;
 };

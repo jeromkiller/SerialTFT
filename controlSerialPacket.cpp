@@ -8,6 +8,7 @@ controlSerialPacket::controlSerialPacket()
 	, screenBrightness(packProperty<uint8_t>(m_flags, 1))
 	, keyBrightness(packProperty<uint8_t>(m_flags, 2))
 	, m_screenOrient(packProperty<uint8_t>(m_flags, 3))
+	, m_multiStyle(packProperty<paintingTypes::MultiscreenStyles>(m_flags, 4))
 {
 }
 
@@ -23,6 +24,7 @@ bool controlSerialPacket::serialize(displaySerialBuffer& buffer)
 	ret &= screenBrightness.serialize(buffer);
 	ret &= keyBrightness.serialize(buffer);
 	ret &= m_screenOrient.serialize(buffer);
+	ret &= m_multiStyle.serialize(buffer);
 
 	ret &= finalizePacket(buffer);
 
@@ -47,6 +49,7 @@ bool controlSerialPacket::deserialize(displaySerialBuffer& buffer)
 	ret &= screenBrightness.deserialize(buffer);
 	ret &= keyBrightness.deserialize(buffer);
 	ret &= m_screenOrient.deserialize(buffer);
+	ret &= m_multiStyle.deserialize(buffer);
 
 	return ret;
 }

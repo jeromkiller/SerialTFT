@@ -3,6 +3,7 @@
 
 paintPrimitivePacket::paintPrimitivePacket() :
 	paintPacketBase(serialPacketBaseTypes::packetType::SHAPE_PACKET)
+	, penColor(packProperty<packedColor>(m_flags, 2))
 {
 	m_primitive = primitives::point;
 	memset(&m_parameters, 0, sizeof(parameters));
@@ -18,6 +19,7 @@ bool paintPrimitivePacket::serialize(displaySerialBuffer& buffer)
 
 	ret &= buffer.add(m_primitive);
 	ret &= buffer.add(m_parameters);
+	ret &= penColor.serialize(buffer);
 
 	ret &= finalizePacket(buffer);
 
@@ -36,19 +38,21 @@ bool paintPrimitivePacket::deserialize(displaySerialBuffer& buffer)
 	//read the data from where paint packet base left off
 	ret &= buffer.get(m_primitive);
 	ret &= buffer.get(m_parameters);
+	ret &= penColor.deserialize(buffer);
+
 	return ret;
 }
 
-//primitive is stored in the low nibble of the flags
+//primitive is stored in the high nibble of the flags
 paintPrimitivePacket::primitives paintPrimitivePacket::getPrimitiveFlag() const
 {
 	//get the primitive by hand
-	return static_cast<primitives>(m_flags.m_flagByte & 0x0F);
+	return static_cast<primitives>((m_flags.m_flagByte & 0xF0) >> 4);
 }
 void paintPrimitivePacket::setPrimitiveFlag(primitives primitive)
 {
 	//set the primitive by hand
-	m_flags.m_flagByte |= (static_cast<uint8_t>(primitive) & 0x0F);
+	m_flags.m_flagByte |= ((static_cast<uint8_t>(primitive) << 4) & 0xF0);
 }
 //data getters and setter
 
