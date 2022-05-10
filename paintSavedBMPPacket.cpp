@@ -2,7 +2,7 @@
 
 paintSavedBMPPacket::paintSavedBMPPacket()
 	: paintPacketBase(serialPacketBaseTypes::packetType::BITMAP_PACKET)
-	, BMPPath(packProperty<char*>(m_flags, 2))
+	, BMPPath(packProperty<const char*>(m_flags, 2))
 	, bgColor(packProperty<packedColor>(m_flags, 3))
 	, transColor(packProperty<packedColor>(m_flags, 4))
 {

@@ -16,7 +16,7 @@ public:
 	virtual bool deserialize(displaySerialBuffer& buffer) final;
 
 	//data
-	packProperty<char*> BMPPath;
+	packProperty<const char*> BMPPath;
 	packProperty<packedColor> bgColor;
 	packProperty<packedColor> transColor;
 };

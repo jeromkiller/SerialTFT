@@ -5,9 +5,9 @@ paintTextPacket::paintTextPacket()
 	: paintPacketBase(serialPacketBaseTypes::packetType::TEXT_PACKET)
 	, textSize(packProperty<uint8_t>(m_flags, 2))
 	, useWrapping(packProperty<bool>(m_flags, 3))
-	, textPtr(packProperty<char*>(m_flags, 4))
-	, penColor(packProperty<packedColor>(m_flags, 5))
-	, bgColor(packProperty<packedColor>(m_flags, 6))
+	, penColor(packProperty<packedColor>(m_flags, 4))
+	, bgColor(packProperty<packedColor>(m_flags, 5))
+	, textPtr(packProperty<const char*>(m_flags, 6))
 {
 };
 

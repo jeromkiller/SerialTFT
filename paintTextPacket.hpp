@@ -15,9 +15,9 @@ public:
 	virtual bool deserialize(displaySerialBuffer& buffer) final;
 
 	//data
-	packProperty<packedColor> penColor;
-	packProperty<packedColor> bgColor;
 	packProperty<uint8_t> textSize;
 	packProperty<bool> useWrapping;
-	packProperty<char*> textPtr;
+	packProperty<packedColor> penColor;
+	packProperty<packedColor> bgColor;
+	packProperty<const char*> textPtr;
 };
