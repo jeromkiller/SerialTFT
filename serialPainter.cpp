@@ -251,9 +251,9 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 				const uint16_t s_width = sprite_canvas->width();
 				for(uint16_t i = 0; i < s_height * s_width; i++)
 				{
-					if(sprite_buff[i] == m_bmpTransColor.getColors())
+					if(sprite_buff[i] == m_bmpTransColor)
 					{
-						sprite_buff[i] = m_bmpBgColor.getColors();
+						sprite_buff[i] = m_bmpBgColor;
 					}
 				}
 

@@ -43,6 +43,7 @@ public:
 
 	packedColor();
 	packedColor(uint16_t col);
+	packedColor(uint8_t R, uint8_t G, uint8_t B);
 
 	//induvidual colors
 	uint8_t getRed() const;
@@ -53,7 +54,8 @@ public:
 	void setBlue(const uint8_t newBlue);
 
 	//operator overloads
-	packedColor& operator=(const uint16_t newColors);
+	inline packedColor& operator=(const uint16_t newColors) {setColors(newColors);	return *this;};
+	inline operator uint16_t() const { return getColors(); };
 
 	uint16_t  getColors() const;
 	void setColors(const uint16_t newColors);

@@ -112,6 +112,8 @@ public:
 	uint8_t calcCRCbyte();
 	//validate if the packet we recieved is correct
 	bool validatePacket();
+	//clear the databuffer
+	void clear();
 
 private:
 	std::vector<uint8_t> m_buffer;

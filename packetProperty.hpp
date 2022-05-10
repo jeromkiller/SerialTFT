@@ -43,6 +43,8 @@ class packProperty
 		return m_value;
 	}
 
+	operator T() const { return m_value; };
+
 	//serialize direct value
 	template<typename Q = T>
 	typename std::enable_if<!(std::is_pointer<Q>::value), bool>::type

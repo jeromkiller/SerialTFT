@@ -75,3 +75,8 @@ bool displaySerialBuffer::validatePacket()
 
 	return ret;
 }
+
+void displaySerialBuffer::clear()
+{
+	m_buffer.clear();
+}

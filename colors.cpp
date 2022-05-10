@@ -10,6 +10,13 @@ packedColor::packedColor(uint16_t col)
 	m_packedColors.rawColor = col;
 }
 
+packedColor::packedColor(uint8_t R, uint8_t G, uint8_t B)
+{
+	setRed(R);
+	setGreen(G);
+	setBlue(B);
+}
+
 uint8_t packedColor::getRed() const
 {
 	return m_packedColors.red << 3;
@@ -38,12 +45,6 @@ void packedColor::setGreen(const uint8_t newGreen)
 void packedColor::setBlue(const uint8_t newBlue)
 {
 	m_packedColors.blue = newBlue >> 3;
-}
-
-packedColor& packedColor::operator=(const uint16_t newColors)
-{
-	setColors(newColors);
-	return *this;
 }
 
 uint16_t  packedColor::getColors() const
