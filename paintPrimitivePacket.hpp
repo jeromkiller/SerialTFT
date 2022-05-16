@@ -27,7 +27,7 @@ public:
 		filledTriangle
 	};
 
-	virtual bool serialize(displaySerialBuffer& buffer) final;
+	virtual bool serialize(displaySerialBuffer& buffer) const final;
 	virtual bool deserialize(displaySerialBuffer& buffer) final;
 
 	//primitive is stored in the low nibble of the flags

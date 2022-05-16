@@ -9,7 +9,7 @@ paintPrimitivePacket::paintPrimitivePacket() :
 	memset(&m_parameters, 0, sizeof(parameters));
 }
 
-bool paintPrimitivePacket::serialize(displaySerialBuffer& buffer)
+bool paintPrimitivePacket::serialize(displaySerialBuffer& buffer) const
 {
 	bool ret = paintPacketBase::serialize(buffer);
 	if(!ret)

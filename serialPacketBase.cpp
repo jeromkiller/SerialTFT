@@ -13,7 +13,7 @@ serialPacketBase::serialPacketBase(const packetType pType) : m_pType(pType)
 {
 }
 
-bool serialPacketBase::serialize(displaySerialBuffer& buffer)
+bool serialPacketBase::serialize(displaySerialBuffer& buffer) const
 {
 	if(buffer.getPacketLength() > 0)
 	{
@@ -28,7 +28,7 @@ bool serialPacketBase::serialize(displaySerialBuffer& buffer)
 	return true;
 }
 
-bool serialPacketBase::finalizePacket(displaySerialBuffer& buffer)
+bool serialPacketBase::finalizePacket(displaySerialBuffer& buffer) const
 {
 	//add the packet length to the packet + space for the packet length byte, and the 
 	const uint8_t packetSize = buffer.getBufferSize() + 1;

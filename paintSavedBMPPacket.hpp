@@ -12,7 +12,7 @@ class paintSavedBMPPacket :
 public:
 	paintSavedBMPPacket();
 
-	virtual bool serialize(displaySerialBuffer& buffer) final;
+	virtual bool serialize(displaySerialBuffer& buffer) const final;
 	virtual bool deserialize(displaySerialBuffer& buffer) final;
 
 	//data

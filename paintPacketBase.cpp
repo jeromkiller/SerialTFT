@@ -8,7 +8,7 @@ paintPacketBase::paintPacketBase(serialPacketBaseTypes::packetType pType)
 {
 }
 
-bool paintPacketBase::serialize(displaySerialBuffer& buffer)
+bool paintPacketBase::serialize(displaySerialBuffer& buffer) const
 {
 	bool ret = serialPacketBase::serialize(buffer);
 	if(!ret)

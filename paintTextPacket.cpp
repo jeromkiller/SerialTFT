@@ -11,7 +11,7 @@ paintTextPacket::paintTextPacket()
 {
 };
 
-bool paintTextPacket::serialize(displaySerialBuffer& buffer)
+bool paintTextPacket::serialize(displaySerialBuffer& buffer) const
 {
 	bool ret = paintPacketBase::serialize(buffer);
 	if(!ret)

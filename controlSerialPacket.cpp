@@ -12,7 +12,7 @@ controlSerialPacket::controlSerialPacket()
 {
 }
 
-bool controlSerialPacket::serialize(displaySerialBuffer& buffer)
+bool controlSerialPacket::serialize(displaySerialBuffer& buffer) const
 {
 	bool ret = serialPacketBase::serialize(buffer);
 	if(!ret)

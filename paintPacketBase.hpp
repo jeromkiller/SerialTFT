@@ -10,7 +10,7 @@ class paintPacketBase :
 	public serialPacketBase
 {
 public:
-	virtual bool serialize(displaySerialBuffer& buffer) override;
+	virtual bool serialize(displaySerialBuffer& buffer) const override;
 	virtual bool deserialize(displaySerialBuffer& buffer) override;
 
 	//data

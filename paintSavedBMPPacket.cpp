@@ -8,7 +8,7 @@ paintSavedBMPPacket::paintSavedBMPPacket()
 {
 };
 
-bool paintSavedBMPPacket::serialize(displaySerialBuffer& buffer)
+bool paintSavedBMPPacket::serialize(displaySerialBuffer& buffer) const
 {
 	bool ret = paintPacketBase::serialize(buffer);
 	if(!ret)
