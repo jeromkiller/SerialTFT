@@ -16,7 +16,10 @@ serialPainter::serialPainter(Adafruit_SPITFT** displays, const uint8_t num_displ
 {
 	m_numDisplays = num_displays;
 	m_penColor = 0;
+	m_textColor = 0;
 	m_textBgColor = 0;
+	m_bmpTransColor = 0;
+	m_bmpBgColor = 0;
 	m_penX = 0;
 	m_penY = 0;
 	m_screenStyle = paintingTypes::MultiscreenStyles::STATIC;
@@ -35,6 +38,18 @@ serialPainter::~serialPainter()
 Adafruit_SPITFT& serialPainter::getDisplay(uint8_t id)
 {
 	return **(m_displays + id);
+}
+
+void serialPainter::printMessage(const char* msg)
+{
+	Adafruit_SPITFT& disp = getDisplay(0);
+	const uint16_t cursorX = disp.getCursorX();
+	const uint16_t cursorY = disp.getCursorY();
+	disp.setTextColor(basicColors::RED, basicColors::BLACK);
+	disp.setCursor(0, 0);
+	disp.print(msg);
+	disp.setCursor(cursorX, cursorY);
+	disp.setTextColor(m_textBgColor, m_textBgColor);
 }
 
 bool serialPainter::performCommand(const serialPacketBase& packet)
@@ -202,6 +217,8 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 		case packetType::TEXT_PACKET:
 		{
 			const paintTextPacket& textPacket = static_cast<const paintTextPacket&>(packet);
+			uint16_t future_penX = 0;
+			uint16_t future_penY = 0;
 
 			//apply the base paremeters if they're set
 			setTextParameters(textPacket);
@@ -220,8 +237,12 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 
 					Adafruit_SPITFT& current_disp = getDisplay(d);
 					current_disp.print(textPacket.textPtr.value());
+					future_penX = current_disp.getCursorX();
+					future_penY = current_disp.getCursorY();
 				}
 			}
+			m_penX = future_penX;
+			m_penY = future_penY;
 			postDrawCommand();
 			break;
 		}
@@ -323,6 +344,7 @@ void serialPainter::setTextParameters(const paintTextPacket& packet)
 		}
 
 		Adafruit_GFX& display = getDisplay(d);
+
 		display.setCursor(m_penX, m_penY);
 
 		if(packet.penColor.isSet())
@@ -337,7 +359,7 @@ void serialPainter::setTextParameters(const paintTextPacket& packet)
 			m_textBgColor = bgColor;
 		}
 
-		display.setTextColor(m_penColor.getColors(), m_textBgColor.getColors());
+		display.setTextColor(m_textColor.getColors(), m_textBgColor.getColors());
 
 		if(packet.textSize.isSet())
 		{
@@ -347,7 +369,7 @@ void serialPainter::setTextParameters(const paintTextPacket& packet)
 
 		if(packet.useWrapping.isSet())
 		{
-			const bool useTextWrap = packet.useWrapping.isSet();
+			const bool useTextWrap = packet.useWrapping.value();
 			display.setTextWrap(useTextWrap);
 		}
 	}

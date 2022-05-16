@@ -29,6 +29,8 @@ public:
 	Adafruit_SPITFT& getDisplay(const uint8_t id);
 
 	bool performCommand(const serialPacketBase& packet);
+	//prints a message to the first screen, usefull for debugging or errors
+	void printMessage(const char* msg);
 
 private:
 	void setPaintBaseParameters(const paintPacketBase& packet);
