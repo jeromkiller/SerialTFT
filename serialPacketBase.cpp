@@ -20,7 +20,7 @@ bool serialPacketBase::serialize(displaySerialBuffer& buffer) const
 		return false;
 	}
 	//add a byte for the packet size, to be determined later
-	buffer.add((uint8_t)0);
+	buffer.add((uint16_t)0);
 
 	//add the packet type 
 	buffer.add(m_pType);
@@ -31,7 +31,7 @@ bool serialPacketBase::serialize(displaySerialBuffer& buffer) const
 bool serialPacketBase::finalizePacket(displaySerialBuffer& buffer) const
 {
 	//add the packet length to the packet + space for the packet length byte, and the 
-	const uint8_t packetSize = buffer.getBufferSize() + 1;
+	const uint16_t packetSize = buffer.getBufferSize() + 1;
 	std::vector<uint8_t>& rawBuffer = buffer.getBuffer();
 	rawBuffer[packetIndex::PACKET_LENGTH] = packetSize;
 

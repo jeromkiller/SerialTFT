@@ -33,7 +33,7 @@ public:
 	//add a buffer to the packet
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	add_buffer(const T* buff_ptr, const int8_t numItems)
+	add_buffer(const T* buff_ptr, const uint16_t numItems)
 	{
 		if(buff_ptr == nullptr)
 		{
@@ -98,12 +98,12 @@ public:
 	}
 
 	//set where from the packet we want to get data
-	void setPacketIndex(uint8_t newIndex);
+	void setPacketIndex(uint16_t newIndex);
 
 	//how long does the packet report to be
-	uint8_t getPacketLength() const;
+	uint16_t getPacketLength() const;
 	//how many bytes are in the buffer
-	uint8_t getBufferSize() const;
+	uint16_t getBufferSize() const;
 	//get the packetType
 	serialPacketBaseTypes::packetType getPacketType() const;
 	//have we recieved the full package

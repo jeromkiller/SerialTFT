@@ -16,8 +16,8 @@ namespace serialPacketBaseTypes
 	enum packetIndex : uint8_t
 	{
 		PACKET_LENGTH = 0,
-		PACKET_TYPE = 1,
-		PACKET_FLAGS = 2,
-		PACKET_DATA = 3
+		PACKET_TYPE = 2,
+		PACKET_FLAGS = 3,
+		PACKET_DATA = 4
 	};
 };
