@@ -45,7 +45,7 @@ void serialPainter::printMessage(const char* msg)
 	Adafruit_SPITFT& disp = getDisplay(0);
 	const uint16_t cursorX = disp.getCursorX();
 	const uint16_t cursorY = disp.getCursorY();
-	disp.setTextColor(basicColors::RED, basicColors::BLACK);
+	disp.setTextColor(basicColors::WHITE, basicColors::BLACK);
 	disp.setCursor(0, 0);
 	disp.print(msg);
 	disp.setCursor(cursorX, cursorY);
