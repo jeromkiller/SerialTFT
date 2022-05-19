@@ -15,22 +15,22 @@ std::vector<uint8_t>& displaySerialBuffer::getBuffer()
 	return m_buffer;
 }
 
-void displaySerialBuffer::setPacketIndex(uint8_t newIndex)
+void displaySerialBuffer::setPacketIndex(uint16_t newIndex)
 {
 	m_dataIndex = newIndex;
 }
 
-uint8_t displaySerialBuffer::getPacketLength() const
+uint16_t displaySerialBuffer::getPacketLength() const
 {
-	if(m_buffer.empty())
+	if(m_buffer.size() <= 2)
 	{
 		return 0;
 	}
 	
-	return *m_buffer.cbegin();
+	return *reinterpret_cast<const uint16_t*>(m_buffer.data());
 }
 
-uint8_t displaySerialBuffer::getBufferSize() const
+uint16_t displaySerialBuffer::getBufferSize() const
 {
 	return m_buffer.size();
 }

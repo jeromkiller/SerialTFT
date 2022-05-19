@@ -60,7 +60,7 @@ class packProperty
 	//serialize an array
 	template<typename Q = T>
 	typename std::enable_if<std::is_pointer<Q>::value, bool>::type
-	serialize(displaySerialBuffer& buffer, uint8_t num_elements) const
+	serialize(displaySerialBuffer& buffer, uint16_t num_elements) const
 	{
 		if(m_flags.getFlag(m_flagId))
 		{
@@ -84,7 +84,7 @@ class packProperty
 	//deserialize array, sets num_elements with the amount of items
 	template<typename Q = T>
 	typename std::enable_if<std::is_pointer<Q>::value, bool>::type
-	deserialize(displaySerialBuffer& buffer, uint8_t& num_elements)
+	deserialize(displaySerialBuffer& buffer, uint16_t& num_elements)
 	{
 		if(m_flags.getFlag(m_flagId))
 		{
@@ -98,7 +98,7 @@ class packProperty
 	typename std::enable_if<std::is_pointer<Q>::value, bool>::type
 	deserialize(displaySerialBuffer& buffer)
 	{
-		uint8_t dummy;
+		uint16_t dummy;
 		return deserialize(buffer, dummy);
 	}
 
