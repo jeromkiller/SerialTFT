@@ -142,10 +142,12 @@ void serialTFTHandler::handlePacket(const serialPacketBase &pack)
 		{
 			m_inBuffer.clear();
 			//get the length
-			const uint8_t len = m_macroFile.read();
+			uint16_t len = 0;
+			m_macroFile.read(&len, sizeof(len));
+			
 			m_inBuffer.add(len);
 			//get the rest of the packet
-			for(uint8_t i = 1; i < len; i++)
+			for(uint16_t i = sizeof(len); i < len; i++)
 			{
 				const uint8_t b = m_macroFile.read();
 				m_inBuffer.add(b);
