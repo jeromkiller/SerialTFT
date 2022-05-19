@@ -172,3 +172,8 @@ void serialTFTHandler::handlePacket(const serialPacketBase &pack)
 		m_painter.performCommand(pack);
 	}
 }
+
+void serialTFTHandler::resetBuffer()
+{
+	m_inBuffer.clear();
+}

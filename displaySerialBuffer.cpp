@@ -64,16 +64,29 @@ uint8_t displaySerialBuffer::calcCRCbyte()
 
 bool displaySerialBuffer::validatePacket()
 {
+	//don't even bother checking
 	if(m_buffer.empty())
 	{
 		return false;
 	}
 
-	bool ret = true;
-	ret &= fullPacketRecieved();
-	ret &= calcCRCbyte() == *(m_buffer.end()-1);
+	//check if we have the entire packet
+	if(!fullPacketRecieved())
+	{
+		return false;
+	}
 
-	return ret;
+	//check if we got the packet correctly
+	if(calcCRCbyte() != *(m_buffer.end()-1))
+	{
+		//if the packet is wrong, then reset the buffer
+		//hopefully the next packet does work
+		clear();
+		return false;
+	}
+
+	//all good
+	return true;
 }
 
 void displaySerialBuffer::clear()
