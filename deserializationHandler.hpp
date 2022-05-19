@@ -26,6 +26,9 @@ public:
 
 	//handle a packet, can be called publicly for testing
 	void handlePacket(const serialPacketBase& pack);
+
+	//reset the buffer, usefull for timeouts if something went wrong
+	void resetBuffer();
 private:
 
 	void deserializeBuffer(displaySerialBuffer& buff);

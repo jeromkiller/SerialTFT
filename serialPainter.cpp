@@ -45,7 +45,7 @@ void serialPainter::printMessage(const char* msg)
 	Adafruit_SPITFT& disp = getDisplay(0);
 	const uint16_t cursorX = disp.getCursorX();
 	const uint16_t cursorY = disp.getCursorY();
-	disp.setTextColor(basicColors::RED, basicColors::BLACK);
+	disp.setTextColor(basicColors::WHITE, basicColors::BLACK);
 	disp.setCursor(0, 0);
 	disp.print(msg);
 	disp.setCursor(cursorX, cursorY);
@@ -118,14 +118,14 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 				{
 					case paintPrimitivePacket::primitives::point :
 					{
-						current_disp.drawPixel(m_penX, m_penY, m_penColor.getColors());
+						current_disp.drawPixel(m_penX, m_penY, m_penColor);
 						break;
 					}
 					case paintPrimitivePacket::primitives::line :
 					{
 						const uint16_t ptX1 = paintPacket.getPointX1();
 						const uint16_t ptY1 = paintPacket.getPointY1();
-						current_disp.drawLine(m_penX, m_penY, ptX1, ptY1, m_penColor.getColors());
+						current_disp.drawLine(m_penX, m_penY, ptX1, ptY1, m_penColor);
 						future_penX = ptX1;
 						future_penY = ptY1;
 						break;
@@ -133,20 +133,20 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 					case paintPrimitivePacket::primitives::circle :
 					{
 						const uint16_t rad = paintPacket.getRadius();
-						current_disp.drawCircle(m_penX, m_penY, rad, m_penColor.getColors());
+						current_disp.drawCircle(m_penX, m_penY, rad, m_penColor);
 						break;
 					}
 					case paintPrimitivePacket::primitives::filledCircle :
 					{
 						const uint16_t rad = paintPacket.getRadius();
-						current_disp.fillCircle(m_penX, m_penY, rad, m_penColor.getColors());
+						current_disp.fillCircle(m_penX, m_penY, rad, m_penColor);
 						break;
 					}
 					case paintPrimitivePacket::primitives::rectangle :
 					{
 						const uint16_t width = paintPacket.getWidth();
 						const uint16_t height = paintPacket.getHeight();
-						current_disp.drawRect(m_penX, m_penY, width, height, m_penColor.getColors());
+						current_disp.drawRect(m_penX, m_penY, width, height, m_penColor);
 						future_penX = m_penX + width;
 						future_penY = m_penY + height;
 						break;
@@ -155,7 +155,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 					{
 						const uint16_t width = paintPacket.getWidth();
 						const uint16_t height = paintPacket.getHeight();
-						current_disp.fillRect(m_penX, m_penY, width, height, m_penColor.getColors());
+						current_disp.fillRect(m_penX, m_penY, width, height, m_penColor);
 						future_penX = m_penX + width;
 						future_penY = m_penY + height;
 						break;
@@ -165,7 +165,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 						const uint16_t width = paintPacket.getWidth();
 						const uint16_t height = paintPacket.getHeight();
 						const uint16_t radius = paintPacket.getRadius();
-						current_disp.drawRoundRect(m_penX, m_penY, width, height, radius, m_penColor.getColors());
+						current_disp.drawRoundRect(m_penX, m_penY, width, height, radius, m_penColor);
 						future_penX = m_penX + width;
 						future_penY = m_penY + height;
 						break;
@@ -175,7 +175,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 						const uint16_t width = paintPacket.getWidth();
 						const uint16_t height = paintPacket.getHeight();
 						const uint16_t radius = paintPacket.getRadius();
-						current_disp.fillRoundRect(m_penX, m_penY, width, height, radius, m_penColor.getColors());
+						current_disp.fillRoundRect(m_penX, m_penY, width, height, radius, m_penColor);
 						future_penX = m_penX + width;
 						future_penY = m_penY + height;
 						break;
@@ -186,7 +186,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 						const uint16_t ptY1 = paintPacket.getPointY1();
 						const uint16_t ptX2 = paintPacket.getPointX2();
 						const uint16_t ptY2 = paintPacket.getPointY2();
-						current_disp.drawTriangle(m_penX, m_penY, ptX1, ptY1, ptX2, ptY2, m_penColor.getColors());
+						current_disp.drawTriangle(m_penX, m_penY, ptX1, ptY1, ptX2, ptY2, m_penColor);
 						future_penX = m_penX + ptX2;
 						future_penY = m_penY + ptY2;
 						break;
@@ -197,7 +197,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 						const uint16_t ptY1 = paintPacket.getPointY1();
 						const uint16_t ptX2 = paintPacket.getPointX2();
 						const uint16_t ptY2 = paintPacket.getPointY2();
-						current_disp.fillTriangle(m_penX, m_penY, ptX1, ptY1, ptX2, ptY2, m_penColor.getColors());
+						current_disp.fillTriangle(m_penX, m_penY, ptX1, ptY1, ptX2, ptY2, m_penColor);
 						future_penX = m_penX + ptX2;
 						future_penY = m_penY + ptY2;
 						break;
@@ -359,7 +359,7 @@ void serialPainter::setTextParameters(const paintTextPacket& packet)
 			m_textBgColor = bgColor;
 		}
 
-		display.setTextColor(m_textColor.getColors(), m_textBgColor.getColors());
+		display.setTextColor(m_textColor, m_textBgColor);
 
 		if(packet.textSize.isSet())
 		{
