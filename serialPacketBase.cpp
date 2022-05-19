@@ -19,7 +19,7 @@ bool serialPacketBase::serialize(displaySerialBuffer& buffer) const
 	{
 		return false;
 	}
-	//add a byte for the packet size, to be determined later
+	//add a couple of bytes for the packet size, to be determined later
 	buffer.add((uint16_t)0);
 
 	//add the packet type 
@@ -33,7 +33,8 @@ bool serialPacketBase::finalizePacket(displaySerialBuffer& buffer) const
 	//add the packet length to the packet + space for the packet length byte, and the 
 	const uint16_t packetSize = buffer.getBufferSize() + 1;
 	std::vector<uint8_t>& rawBuffer = buffer.getBuffer();
-	rawBuffer[packetIndex::PACKET_LENGTH] = packetSize;
+	memcpy(rawBuffer.data(), &packetSize, sizeof(packetSize));
+	//rawBuffer[packetIndex::PACKET_LENGTH + 1] = packetSize;
 
 	//calculate and add the crc byte
 	//add an empty byte to finalize the packet and to calculate the crc

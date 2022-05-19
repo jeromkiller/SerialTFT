@@ -22,12 +22,12 @@ void displaySerialBuffer::setPacketIndex(uint16_t newIndex)
 
 uint16_t displaySerialBuffer::getPacketLength() const
 {
-	if(m_buffer.empty())
+	if(m_buffer.size() <= 2)
 	{
 		return 0;
 	}
 	
-	return *m_buffer.cbegin();
+	return *reinterpret_cast<const uint16_t*>(m_buffer.data());
 }
 
 uint16_t displaySerialBuffer::getBufferSize() const

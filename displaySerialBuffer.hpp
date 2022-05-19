@@ -77,7 +77,7 @@ public:
 	//get a pointer to a sepperate buffer from the buffer
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	get_buffer_ptr(T** placepointer, uint8_t& num_elements)
+	get_buffer_ptr(T** placepointer, uint16_t& num_elements)
 	{
 		//first get the number of items in the buffer
 		get(num_elements);
@@ -90,7 +90,7 @@ public:
 
 	template<typename T>
 	typename std::enable_if<std::is_trivially_copyable<T>::value, bool>::type
-	get_buffer_ptr(T** placePointer, uint8_t& num_elements, uint8_t index)
+	get_buffer_ptr(T** placePointer, uint16_t& num_elements, uint16_t index)
 	{
 		//set the index and then just call the regular getbuffer function
 		m_dataIndex = index;
@@ -117,6 +117,6 @@ public:
 
 private:
 	std::vector<uint8_t> m_buffer;
-	uint8_t m_dataIndex;
+	uint16_t m_dataIndex;
 
 };
