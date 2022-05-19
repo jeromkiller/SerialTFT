@@ -22,6 +22,7 @@ serialPainter::serialPainter(Adafruit_SPITFT** displays, const uint8_t num_displ
 	m_bmpBgColor = 0;
 	m_penX = 0;
 	m_penY = 0;
+	m_textSize = 1;
 	m_screenStyle = paintingTypes::MultiscreenStyles::STATIC;
 }
 
@@ -47,9 +48,11 @@ void serialPainter::printMessage(const char* msg)
 	const uint16_t cursorY = disp.getCursorY();
 	disp.setTextColor(basicColors::WHITE, basicColors::BLACK);
 	disp.setCursor(0, 0);
+	disp.setTextSize(1);
 	disp.print(msg);
 	disp.setCursor(cursorX, cursorY);
 	disp.setTextColor(m_textBgColor, m_textBgColor);
+	disp.setTextSize(m_textSize);
 }
 
 bool serialPainter::performCommand(const serialPacketBase& packet)
@@ -64,7 +67,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 			
 			if(controlPacket.screenSelect.isSet())
 			{
-				m_activeScreens = controlPacket.screenSelect.value();
+				m_activeScreens = controlPacket.screenSelect;
 			}
 			if(controlPacket.screenBrightness.isSet())
 			{
@@ -76,7 +79,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 			}
 			if(controlPacket.m_screenOrient.isSet())
 			{
-				const uint8_t orientation = controlPacket.m_screenOrient.value();
+				const uint8_t orientation = controlPacket.m_screenOrient;
 				for(uint8_t d = 0; d < m_numDisplays; d++)
 				{
 					//check if the screen is active
@@ -90,7 +93,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 			}
 			if(controlPacket.m_multiStyle.isSet())
 			{
-				m_screenStyle = controlPacket.m_multiStyle.value();
+				m_screenStyle = controlPacket.m_multiStyle;
 			}
 
 			break;
@@ -236,7 +239,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 					}
 
 					Adafruit_SPITFT& current_disp = getDisplay(d);
-					current_disp.print(textPacket.textPtr.value());
+					current_disp.print(textPacket.textPtr);
 					future_penX = current_disp.getCursorX();
 					future_penY = current_disp.getCursorY();
 				}
@@ -254,7 +257,7 @@ bool serialPainter::performCommand(const serialPacketBase& packet)
 
 			if(bmpPacket.BMPPath.isSet())
 			{
-				const char* bmpPath = bmpPacket.BMPPath.value();
+				const char* bmpPath = bmpPacket.BMPPath;
 				//cache the bitmap,
 				ImageReturnCode stat;
 				Adafruit_Image sprite; 
@@ -311,11 +314,11 @@ void serialPainter::setPaintBaseParameters(const paintPacketBase& packet)
 {
 	if(packet.cursorX.isSet())
 	{
-		m_penX = packet.cursorX.value();
+		m_penX = packet.cursorX;
 	}
 	if(packet.cursorY.isSet())
 	{
-		m_penY = packet.cursorY.value();
+		m_penY = packet.cursorY;
 	}
 
 }
@@ -326,7 +329,7 @@ void serialPainter::setPaintPrimitiveParameters(const paintPrimitivePacket& pack
 
 	if(packet.penColor.isSet())
 	{
-		m_penColor = packet.penColor.value();
+		m_penColor = packet.penColor;
 	}
 }
 
@@ -349,27 +352,25 @@ void serialPainter::setTextParameters(const paintTextPacket& packet)
 
 		if(packet.penColor.isSet())
 		{
-			const packedColor tColor = packet.penColor.value();
-			m_textColor = tColor;
+			m_textColor = packet.penColor;
 		}
 
 		if(packet.bgColor.isSet())
 		{
-			const packedColor bgColor = packet.bgColor.value();
-			m_textBgColor = bgColor;
+			m_textBgColor = packet.bgColor;
 		}
 
 		display.setTextColor(m_textColor, m_textBgColor);
 
 		if(packet.textSize.isSet())
 		{
-			const uint8_t textSize = packet.textSize.value();
-			display.setTextSize(textSize);
+			m_textSize = packet.textSize;
+			display.setTextSize(m_textSize);
 		}
 
 		if(packet.useWrapping.isSet())
 		{
-			const bool useTextWrap = packet.useWrapping.value();
+			const bool useTextWrap = packet.useWrapping;
 			display.setTextWrap(useTextWrap);
 		}
 	}
@@ -381,14 +382,12 @@ void serialPainter::setBMPParameters(const paintSavedBMPPacket& packet)
 
 	if(packet.bgColor.isSet())
 	{
-		const packedColor color = packet.bgColor.value();
-		m_bmpBgColor = color;
+		m_bmpBgColor = packet.bgColor;
 	}
 
 	if(packet.transColor.isSet())
 	{
-		const packedColor color = packet.transColor.value();
-		m_bmpTransColor = color;
+		m_bmpTransColor = packet.transColor;
 	}
 }
 

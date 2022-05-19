@@ -56,4 +56,6 @@ private:
 
 	uint16_t m_penX;
 	uint16_t m_penY;
+
+	uint8_t m_textSize;
 };
