@@ -8,27 +8,33 @@ The aim of this project is to implement the basic drawing commands defined in th
 
 This library currenlty only supports drawing basic shapes,
 
-### The code is currently thuroughly untested
+⚠ This library is currently in a development stage, breaking changes will be made in the future as I work with this library.
+
+---
+
+## What this library supports
+
+ - Control up to 8 tft displays over the serial line
+ - Drawing the basic shapes defined in the [Adafruit gfx library](https://github.com/adafruit/Adafruit-GFX-Library)
+ - Drawing text in the standard font
+ - Drawing bitmap images from an sd card (with added transparancy color)
+ - Performing a batch of pre-serialized commands from an sd card
+
+## Dependencies
+⚠ this list of dependencies may not be completely correct and/or change in the future
+ - Adafruit GFX Library
+ - Adafruit Imagereader Library
+ - SdFat library
+
+### ⚠ The code is currently thuroughly untested on arduino ⚠
 Testing is being performed on a [Teensy 4.0](https://www.pjrc.com/store/teensy40.html) so performance may be different on an actual arduino.
 But for readabillity (and because i'd like this library to be usable on an arduino) I'll be reffering to the Teensy as an arduino.
-This will be more appearent when implementing the streaming of bitmap images.
-
-  - Serializing and Deserializing has not been extensively tested yet.
-  - shapes have only been drawn from teensy memory and not over serial yet.
  
 ### Further developments
-List of developments I'm working on next
-  - Create a desktop app to send serial commands to the arduino
-  - Implement text writing with default font
-  - expand control packets
-    - No support for rotating the screen (I think)
-
-List of developments I'm planning to implement later
-  - Implementing commands to paint bitmaps from the sd card
-    - For this i'll have to add support for the sd card
-  - Implementing support for serialized batch commands to easilly draw set layouts to the screen
-  - Implementing drawing bitmaps over serial
-    - Regular arduinos do not have that much ram, so buffering the entire bitmap might not be feasable
-    - Either a special drawing routine has to be created to allow drawing the bitmap as it gets streamed in.
-    - Or a method could be added to save the incomming bitmap to the sdcard, and then loading it from there
-  - idk, maybe some other stuff?
+List of developments I'd like to work on next:
+ - Creating some example programs to illustrate the features of this library
+ - Change the folder structure to comply with the arduino library spec
+ - Creating a more generic version of the deserialization handler without sd card support
+ - Improving the primitive packet to use less data (breaking change)
+ - Possibly add a yield command to add a delay to the execution of commands in a macro file
+ - Possibly add support for other display types that are supported by the Adafruit GFX library
